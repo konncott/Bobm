@@ -15,7 +15,7 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 local blur = Instance.new("BlurEffect", Lighting)
-blur.Size = 6
+blur.Size = 0
 
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
