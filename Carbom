@@ -1,0 +1,152 @@
+--// Services
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+--// UI
+local ScreenGui = Instance.new("ScreenGui", PlayerGui)
+ScreenGui.Name = "FlingUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local blur = Instance.new("BlurEffect", Lighting)
+blur.Size = 6
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.BackgroundTransparency = 0.1
+MainFrame.Position = UDim2.new(0.5, -110, 0.5, -70)
+MainFrame.Size = UDim2.new(0, 220, 0, 140)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+local stroke = Instance.new("UIStroke", MainFrame)
+stroke.Color = Color3.fromRGB(255, 255, 255)
+stroke.Thickness = 1
+stroke.Transparency = 0.7
+
+--// Close Button
+local CloseButton = Instance.new("TextButton", MainFrame)
+CloseButton.Size = UDim2.new(0, 20, 0, 20)
+CloseButton.Position = UDim2.new(1, -25, 0, 5)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+CloseButton.Text = "X"
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.TextSize = 18
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+	blur:Destroy()
+end)
+
+local closeCorner = Instance.new("UICorner", CloseButton)
+closeCorner.CornerRadius = UDim.new(1, 0)
+--// Title
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Position = UDim2.new(0, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "Car bomb 👻"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 22
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local SubText = Instance.new("TextLabel", MainFrame)
+SubText.Size = UDim2.new(1, -20, 0, 20)
+SubText.Position = UDim2.new(0, 10, 0, 68) -- อยู่ใต้ Title
+SubText.BackgroundTransparency = 1
+SubText.Text = "กดปุ่มเพื่อไประเบิดพ่อมันตายเลย"
+SubText.Font = Enum.Font.Gotham
+SubText.TextSize = 14
+SubText.TextColor3 = Color3.fromRGB(200, 200, 200)
+SubText.TextWrapped = true
+-- Rainbow effect
+task.spawn(function()
+	while Title and Title.Parent do
+		local t = tick()
+		local hue = t % 5 / 5
+		Title.TextColor3 = Color3.fromHSV(hue, 0.8, 1)
+		RunService.RenderStepped:Wait()
+	end
+end)
+
+--// Toggle UI
+local ToggleContainer = Instance.new("Frame", MainFrame)
+ToggleContainer.Position = UDim2.new(0.5, -35, 1, -45)
+ToggleContainer.Size = UDim2.new(0, 70, 0, 30)
+ToggleContainer.BackgroundTransparency = 1
+
+local Background = Instance.new("Frame", ToggleContainer)
+Background.Size = UDim2.new(1, 0, 1, 0)
+Background.Position = UDim2.new(0, 0, 0, 0)
+Background.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Background.BackgroundTransparency = 0.05
+Instance.new("UICorner", Background).CornerRadius = UDim.new(1, 0)
+
+local Circle = Instance.new("Frame", Background)
+Circle.Size = UDim2.new(0.4, 0, 1, -6)
+Circle.Position = UDim2.new(0.05, 0, 0, 3)
+Circle.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+Instance.new("UICorner", Circle).CornerRadius = UDim.new(1, 0)
+Circle.Parent = Background
+
+local ToggleButton = Instance.new("TextButton", ToggleContainer)
+ToggleButton.Size = UDim2.new(1, 0, 1, 0)
+ToggleButton.Text = ""
+ToggleButton.BackgroundTransparency = 1
+ToggleButton.AutoButtonColor = false
+
+--// Fling Script
+local toggle = false
+local flingThread
+local movel = 0.1
+local onColor = Color3.fromRGB(0, 200, 100)
+local offColor = Color3.fromRGB(45, 45, 45)
+
+if not ReplicatedStorage:FindFirstChild("juisdfj0i32i0eidsuf0iok") then
+	local marker = Instance.new("Decal")
+	marker.Name = "juisdfj0i32i0eidsuf0iok"
+	marker.Parent = ReplicatedStorage
+end
+
+local function fling()
+	local lp = Players.LocalPlayer
+	while toggle do
+		local char = lp.Character or lp.CharacterAdded:Wait()
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			local vel = hrp.Velocity
+			hrp.Velocity = vel * 10000 + Vector3.new(0, 10000, 0)
+			RunService.RenderStepped:Wait()
+			hrp.Velocity = vel
+			RunService.Stepped:Wait()
+			hrp.Velocity = vel + Vector3.new(0, movel, 0)
+			movel = -movel
+		end
+		RunService.Heartbeat:Wait()
+	end
+end
+
+ToggleButton.MouseButton1Click:Connect(function()
+	toggle = not toggle
+
+	local goalPos = toggle 
+		and UDim2.new(0.55, 0, 0, 3)
+		or UDim2.new(0.05, 0, 0, 3)
+
+	local goalColor = toggle and onColor or offColor
+
+	TweenService:Create(Circle, TweenInfo.new(0.25), { Position = goalPos }):Play()
+	TweenService:Create(Background, TweenInfo.new(0.25), { BackgroundColor3 = goalColor }):Play()
+
+	if toggle then
+		flingThread = coroutine.create(fling)
+		coroutine.resume(flingThread)
+	end
+end)
